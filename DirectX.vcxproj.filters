@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader">
+      <UniqueIdentifier>{0d6fed93-2b79-4ac7-a373-ef4ba4b4cc93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\Texture">
+      <UniqueIdentifier>{ae59056e-4237-4986-9aac-e9765e29585d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\Unlit">
+      <UniqueIdentifier>{2606d4ec-f112-44d3-aca7-ec7b180cd079}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Renderer">
+      <UniqueIdentifier>{6dbfc816-2a72-417d-9276-c5e95cefa154}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Renderer">
+      <UniqueIdentifier>{487c497e-dfcf-49bd-966c-bde01de7a987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Resources">
+      <UniqueIdentifier>{ca1867fa-370f-4ab6-b5d7-d20b44f75080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Resources\Texture">
+      <UniqueIdentifier>{a6c2bdf3-021b-4682-8035-a5a78ddbcfcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Resources\Font">
+      <UniqueIdentifier>{10372acf-638a-44bf-8e25-4c39558657ea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitive.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlObject.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Render.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Rect.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteRenderer.cpp">
+      <Filter>ソース ファイル\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>ソース ファイル\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>ソース ファイル\Renderer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\Texture\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\Texture\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\Texture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\Unlit\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\Unlit</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\Unlit\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\Unlit</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Word.h">
+      <Filter>リソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitive.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlObject.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Render.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteRenderer.h">
+      <Filter>ヘッダー ファイル\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>ヘッダー ファイル\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>ヘッダー ファイル\Renderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Texture\Image1.jpg">
+      <Filter>リソース ファイル\Resources\Texture</Filter>
+    </Image>
+    <Image Include="Resources\Texture\Image2.jpg">
+      <Filter>リソース ファイル\Resources\Texture</Filter>
+    </Image>
+    <Image Include="Resources\Texture\player.png">
+      <Filter>リソース ファイル\Resources\Texture</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DirectX.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\Font\RictyDiminishedDiscord-Regular.ttf">
+      <Filter>リソース ファイル\Resources\Font</Filter>
+    </Font>
+  </ItemGroup>
+</Project>
