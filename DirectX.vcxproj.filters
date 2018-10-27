@@ -161,9 +161,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
@@ -172,5 +169,8 @@
     <Font Include="Resources\Font\RictyDiminishedDiscord-Regular.ttf">
       <Filter>リソース ファイル\Resources\Font</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
