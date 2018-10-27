@@ -1,2 +1,2 @@
-# DirectxLesson
+# DirectX11Lesson
 授業と連携しつつ、自力でゲームエンジンにある機能を実装する
