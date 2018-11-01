@@ -5,7 +5,7 @@
 #include <DirectXColors.h>			//DirectX::Colorsを利用するために必要
 #include <d3dcompiler.h>
 
-#include <list>
+#include <unordered_map>			//フォントを管理するために利用
 #include <string>
 #include <corecrt_wstring.h>
 
@@ -21,17 +21,15 @@ using namespace DirectX;
 //
 // フォントを読み込むクラス[WIP]
 //
-class Font {
+class Font final {
 
-	static ID3D11Device* device;
-	static list<wstring> loadedFontDataList;
+	static ID3D11DeviceContext* deviceContext;
+	static unordered_map<string, DESIGNVECTOR> loadedFontDataList;
 
 public:
-	Font();
-	~Font();
 
-	static void SetInitData(ID3D11Device* device) {
-		Font::device = device;
+	static void SetInitData(ID3D11DeviceContext* deviceContext) {
+		Font::deviceContext = deviceContext;
 	}
 
 	// Fontをすべてロードする
@@ -39,5 +37,9 @@ public:
 
 	// ロードされているFontをすべて開放する
 	static void UnLoadAllFont();
+
+private:
+
+
 };
 
