@@ -10,10 +10,13 @@
 #include <random>
 
 #include <math.h>
+#include <vector>
+
 #include "Time.h"
 #include "Mesh.h"
 #include "SpriteRenderer.h"
-#include <vector>
+#include "Render.h"
+
 
 #pragma comment(lib, "d3d11.lib")	//ƒŠƒ“ƒN‚·‚é‚½‚ß‚É•K—v
 #pragma comment(lib, "d3dCompiler.lib")
@@ -26,7 +29,11 @@ class ControlObject {
 	BYTE key[256];
 
 	Texture* walkTexture;
+	Texture* texture;
+
 	vector<Sprite*> sprites;
+	Sprite* sprite;
+
 	SpriteRenderer* renderer;
 
 	int walkState = 0;
@@ -43,10 +50,12 @@ public:
 	~ControlObject() {
 
 		if (walkTexture) delete walkTexture;
+		if (texture) delete texture;
 
 		for (size_t i = 0; i < sprites.size(); i++) {
 			delete sprites[i];
 		}
+		if (sprite) delete sprite;
 
 		if (renderer) delete renderer;
 	}
@@ -60,6 +69,7 @@ public:
 	}
 
 	void Quest1();
+	void Quest2();
 
 
 	void ResetModelTransform();

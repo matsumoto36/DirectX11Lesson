@@ -4,7 +4,7 @@
 //頂点シェーダーから受け取る値
 struct PS_IN {
 	float4 pos : SV_POSITION;
-	float4 uv  : TEXCOORD0;
+	float2 uv  : TEXCOORD0;
 
 };
 

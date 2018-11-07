@@ -31,6 +31,9 @@ ID3D11RasterizerState*	Render::g_pRasterizerState = nullptr;
 
 ID3D11SamplerState*		Render::g_pSamplerState = nullptr;
 
+//debug
+Vector2 Render::size = Vector2(512.0f, 512.0f);
+
 //
 // ウィンドウプロシージャ
 // ウィンドウから送られてくるメッセージを解釈して処理する
@@ -61,9 +64,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-HRESULT Render::Init(HINSTANCE hInstance, int nCmdShow) {
+HRESULT Render::Init(HINSTANCE hInstance, int nCmdShow, const string& windowName) {
 
-	InitWindow(hInstance);
+	InitWindow(hInstance, windowName);
 	//ウィンドウの表示方法を指定して表示
 	ShowWindow(g_hWnd, nCmdShow);
 	//ウィンドウのクライアント領域を更新
@@ -75,7 +78,7 @@ HRESULT Render::Init(HINSTANCE hInstance, int nCmdShow) {
 //
 // ウィンドウの初期化
 //
-void Render::InitWindow(HINSTANCE hInstance) {
+void Render::InitWindow(HINSTANCE hInstance, const string& windowName) {
 
 	TCHAR szWindowClass[] = "DIRECTX11 TUTORIAL003";	//ウィンドウクラスを識別する文字列を定義
 	WNDCLASSEX weex;									//ウインドウクラスの構造体(EXではウィンドウのバーにアイコンがつけられる)
@@ -98,7 +101,7 @@ void Render::InitWindow(HINSTANCE hInstance) {
 	//ウィンドウを生成
 	g_hWnd = CreateWindow(
 		szWindowClass,														//登録したクラスの名前
-		"DirectX11 Tutorial003",											//ウィンドウ枠に表示する文字列
+		windowName.c_str(),													//ウィンドウ枠に表示する文字列
 		WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,	//ウインドウスタイル
 		CW_USEDEFAULT,														//ウインドウ左上x座標(画面左上が0)
 		CW_USEDEFAULT,														//ウインドウ左上y座標(画面左上が0)
@@ -407,6 +410,9 @@ void Render::Rendering() {
 		cb.world = XMMatrixTranspose(renderer->transform);
 		cb.view = XMMatrixTranspose(g_View);
 		cb.projection = XMMatrixTranspose(g_Proj);
+
+		cb.size = size;
+
 		//データをコピーしてg_pConstantBufferの内容を書き換える
 		g_pImmedicateContext->UpdateSubresource(
 			g_pConstantBuffer,	//コピー先リソースへのポインタ

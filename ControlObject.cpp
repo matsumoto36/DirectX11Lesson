@@ -4,17 +4,21 @@ void ControlObject::Start() {
 
 	//テクスチャ読み込み
 	walkTexture = new Texture(L"Resources/Texture/player.png");
+	texture = new Texture(L"Resources/Texture/tex.jpg");
 
+	//スプライト作成
 	for (size_t i = 0; i < 7; i++) {
 		sprites.push_back(new Sprite(walkTexture, Rect(64 * i, 0, 64, 64)));
 	}
+	sprite = new Sprite(texture);
+
 
 	renderer = new SpriteRenderer(sprites[0]);
 }
 
 void ControlObject::Update() {
 
-	static int mode = 1;
+	static int mode = 2;
 
 	//キー入力の更新
 	Input();
@@ -32,6 +36,7 @@ void ControlObject::Update() {
 			Quest1();
 			break;
 		case 2:	//問題 2
+			Quest2();
 			break;
 		case 3:	//問題 3
 			break;
@@ -79,11 +84,37 @@ void ControlObject::Quest1() {
 		walkState = 0;
 	}
 
+	renderer->SetShader(L"Texture");
 	renderer->transform = XMMatrixScaling(scaleX, 1, 1);
 	renderer->transform *= XMMatrixTranslation(posX, 0, 0);
 
 	renderer->SetSprite(sprites[walkState]);
 }
+
+void ControlObject::Quest2() {
+
+	float speed = 1000;
+
+	if (key[VK_LEFT] & 0x80) {
+		Render::size.x -= speed * Time::GetDeltaTime();
+	}
+	else if (key[VK_RIGHT] & 0x80) {
+		Render::size.x += speed * Time::GetDeltaTime();
+	}
+
+	if (key[VK_UP] & 0x80) {
+		Render::size.y -= speed * Time::GetDeltaTime();
+	}
+	else if (key[VK_DOWN] & 0x80) {
+		Render::size.y += speed * Time::GetDeltaTime();
+	}
+
+	renderer->SetShader(L"Blur");
+	renderer->SetSprite(sprite);
+	renderer->transform = XMMatrixTranslation(posX, 0, -2);
+
+}
+
 
 #pragma endregion
 

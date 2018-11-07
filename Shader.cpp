@@ -1,10 +1,6 @@
 #include "Shader.h"
 
-#pragma region DefineStaticMember
-
 ID3D11InputLayout*							Shader::pVertexLayout = nullptr;
-unordered_map<wstring, ID3D11VertexShader*>	Shader::pVertexShaderMap;
-unordered_map<wstring, ID3D11PixelShader*>	Shader::pPixelShaderMap;
 
 D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[]{
 	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	0,								D3D11_INPUT_PER_VERTEX_DATA,	0 },
@@ -12,19 +8,24 @@ D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[]{
 	{ "TEXCOORD",	0,	DXGI_FORMAT_R32G32_FLOAT,		0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
 };
 
-#pragma endregion
+vector<wstring> Shader::shaderNameList;
+
+unordered_map<wstring, ID3D11VertexShader*>	Shader::pVertexShaderMap;
+unordered_map<wstring, ID3D11PixelShader*>	Shader::pPixelShaderMap;
 
 
 HRESULT Shader::Initialize(ID3D11Device* device) {
 
-	//ロードするシェーダーの一覧
-	wstring loadingShaderNames[] = {
-		L"Unlit",
-		L"Texture",
-	};
+	//カレントディレクトリから、読み込むシェーダーのディレクトリを取得
+	wchar_t cdir[255];
+	GetCurrentDirectoryW(255, cdir);
+	wstring currntDirectory = cdir;
+
+	vector<wstring> directories;
+	FileAccess::SearchDirectoryPathInDirectory(currntDirectory + L"\\Shader\\*", directories);
 
 	//シェーダーを作成
-	for (auto item : loadingShaderNames) {
+	for (auto item : directories) {
 
 		pVertexShaderMap.emplace(item, nullptr);
 		pPixelShaderMap.emplace(item, nullptr);
@@ -33,8 +34,26 @@ HRESULT Shader::Initialize(ID3D11Device* device) {
 		auto vertexShaderFileName = basePath + item + L"/VertexShader.hlsl";
 		auto pixelShaderFileName = basePath + item + L"/PixelShader.hlsl";
 
-		if (FAILED(CreateVertexShader(device, (vertexShaderFileName).c_str(), pVertexShaderMap[item]))) return E_FAIL;
-		if (FAILED(CreatePixelShader(device, (pixelShaderFileName).c_str(), pPixelShaderMap[item]))) return E_FAIL;
+		try {
+			HRESULT hr;
+			
+			hr = CreateVertexShader(device, (vertexShaderFileName).c_str(), pVertexShaderMap[item]);
+			if(FAILED(hr)) throw hr;
+			hr = CreatePixelShader(device, (pixelShaderFileName).c_str(), pPixelShaderMap[item]);
+			if (FAILED(hr)) throw hr;
+
+			shaderNameList.push_back(item);
+		}
+		catch (int error) {
+
+			pVertexShaderMap.erase(item);
+			pPixelShaderMap.erase(item);
+
+			cout << item.c_str() << "シェーダーが読み込めませんでした" << endl;
+
+		}
+
+
 	}
 
 	return S_OK;
@@ -43,6 +62,12 @@ HRESULT Shader::Initialize(ID3D11Device* device) {
 void Shader::Finalize() {
 
 	//シェーダーを開放
+	for (auto item : shaderNameList) {
+		if (pVertexShaderMap[item]) delete pVertexShaderMap[item];
+		if (pPixelShaderMap[item]) delete pPixelShaderMap[item];
+	}
+
+	shaderNameList.clear();
 	pVertexShaderMap.clear();
 	pPixelShaderMap.clear();
 
@@ -50,17 +75,23 @@ void Shader::Finalize() {
 	if (pVertexLayout) pVertexLayout->Release();
 }
 
-//
-// 名前を指定してシェーダーを取得する
-//
 void Shader::GetShader(wstring name, ID3D11VertexShader* &pVertexShader, ID3D11PixelShader* &pPixelShader) {
+
+	if (!IsValidShader(name)) return;
+
 	pVertexShader = pVertexShaderMap[name];
 	pPixelShader = pPixelShaderMap[name];
 }
 
-//
-// 頂点シェーダーの作成
-//
+bool Shader::IsValidShader(wstring name) {
+
+	for (auto item : shaderNameList) {
+		if (item == name) return true;
+	}
+
+	return false;
+}
+
 HRESULT Shader::CreateVertexShader(ID3D11Device* device, const wchar_t* vs, ID3D11VertexShader* &pVertexShader) {
 	
 	ID3DBlob* pVSBlob = nullptr;
@@ -97,9 +128,7 @@ HRESULT Shader::CreateVertexShader(ID3D11Device* device, const wchar_t* vs, ID3D
 	return hr;
 }
 
-//
-// ピクセルシェーダーの作成
-//
+
 HRESULT Shader::CreatePixelShader(ID3D11Device* device, const wchar_t* ps, ID3D11PixelShader* &pPixelShader) {
 
 	ID3DBlob* pPSBlob = nullptr;
@@ -125,9 +154,6 @@ HRESULT Shader::CreatePixelShader(ID3D11Device* device, const wchar_t* ps, ID3D1
 	return hr;
 }
 
-//
-// ファイルを指定してシェーダーをコンパイルする
-//
 HRESULT Shader::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut) {
 
 	HRESULT hr = S_OK;
@@ -161,9 +187,6 @@ HRESULT Shader::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LP
 	return S_OK;
 }
 
-//
-// 入力アセンブラーステージに入力レイアウトオブジェクトをバインドする
-//
 void Shader::BindInputLayout(ID3D11DeviceContext* pDeviceContext) {
 	pDeviceContext->IASetInputLayout(pVertexLayout);
 }

@@ -29,7 +29,7 @@ using namespace DirectX;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	//ウィンドウの初期化
-	if (FAILED(Render::Init(hInstance, nCmdShow))) {
+	if (FAILED(Render::Init(hInstance, nCmdShow, "DirectX Lesson"))) {
 		return 0;
 	}
 

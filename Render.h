@@ -23,6 +23,7 @@ struct ConstantBuffer {
 	XMMATRIX world;			//ワールド変換行列
 	XMMATRIX view;			//ビュー変換行列
 	XMMATRIX projection;	//プロジェクション変換行列
+	Vector2 size;
 };
 
 //
@@ -64,18 +65,22 @@ class Render final {
 
 	static ID3D11SamplerState*		g_pSamplerState;			//テクスチャのサンプラーステート
 
+public:
+	//debug
+	static Vector2 size;
+
 private:
 	Render();
 
 public:
 	
-	static HRESULT Init(HINSTANCE hInstance, int nCmdShow);
+	static HRESULT Init(HINSTANCE hInstance, int nCmdShow, const string& windowName);
 	static void CleanupDevice();					//デバイスとスワップチェインの開放
 	static void Rendering();						//描画を行う
 
 private:
 
-	static void InitWindow(HINSTANCE hInstance);
+	static void InitWindow(HINSTANCE hInstance, const string& windowName);
 	static HRESULT InitDevice();					//デバイスとスワップチェインの初期化
 	static void RenderClear();						//描画を消す
 

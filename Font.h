@@ -24,7 +24,7 @@ using namespace DirectX;
 class Font final {
 
 	static ID3D11DeviceContext* deviceContext;
-	static unordered_map<string, DESIGNVECTOR> loadedFontDataList;
+	static unordered_map<string, DESIGNVECTOR*> loadedFontDataList;
 
 public:
 

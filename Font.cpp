@@ -1,14 +1,14 @@
 #include "Font.h"
 
 ID3D11DeviceContext* Font::deviceContext;
-unordered_map<string, DESIGNVECTOR> Font::loadedFontDataList;
+unordered_map<string, DESIGNVECTOR*> Font::loadedFontDataList;
 
 void Font::LoadAllFont() {
 
 	if (loadedFontDataList.size() > 0) UnLoadAllFont();
 
 	//フォントをロード
-	loadedFontDataList = unordered_map<string, DESIGNVECTOR>();
+	loadedFontDataList = unordered_map<string, DESIGNVECTOR*>();
 
 	string loadingFontList[] = {
 		TEXT("RictyDiminishedDiscord-Regular"),
@@ -24,7 +24,7 @@ void Font::LoadAllFont() {
 		AddFontResourceEx(
 			filename.c_str(), //ttfファイルへのパス
 			FR_PRIVATE,
-			&loadedFontDataList[item]
+			loadedFontDataList[item]
 		);
 
 	}
@@ -41,12 +41,12 @@ void Font::UnLoadAllFont() {
 		AddFontResourceEx(
 			filename.c_str(), //ttfファイルへのパス
 			FR_PRIVATE,
-			&item.second
+			item.second
 		);
 
 	}
 
-	loadedFontDataList = unordered_map<string, DESIGNVECTOR>();
+	loadedFontDataList = unordered_map<string, DESIGNVECTOR*>();
 
 }
 

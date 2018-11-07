@@ -37,6 +37,9 @@
     <Filter Include="リソース ファイル\Resources\Font">
       <UniqueIdentifier>{10372acf-638a-44bf-8e25-4c39558657ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Shader\SandBox">
+      <UniqueIdentifier>{2b12841a-8595-4d74-ba96-29cf3408af79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -84,6 +87,9 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>ソース ファイル\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="FileAccess.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\Texture\PixelShader.hlsl">
@@ -97,6 +103,12 @@
     </FxCompile>
     <FxCompile Include="Shader\Unlit\VertexShader.hlsl">
       <Filter>リソース ファイル\Shader\Unlit</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SandBox\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\SandBox</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SandBox\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\SandBox</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +160,9 @@
     <ClInclude Include="Renderer.h">
       <Filter>ヘッダー ファイル\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="FileAccess.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Texture\Image1.jpg">
@@ -157,6 +172,9 @@
       <Filter>リソース ファイル\Resources\Texture</Filter>
     </Image>
     <Image Include="Resources\Texture\player.png">
+      <Filter>リソース ファイル\Resources\Texture</Filter>
+    </Image>
+    <Image Include="Resources\Texture\tex.jpg">
       <Filter>リソース ファイル\Resources\Texture</Filter>
     </Image>
   </ItemGroup>
