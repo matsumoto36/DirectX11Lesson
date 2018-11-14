@@ -40,6 +40,15 @@
     <Filter Include="リソース ファイル\Shader\SandBox">
       <UniqueIdentifier>{2b12841a-8595-4d74-ba96-29cf3408af79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Shader\MultiTexture">
+      <UniqueIdentifier>{29f3a38b-47e0-48a9-acb0-462b3ac0400c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Vector">
+      <UniqueIdentifier>{54b9ce90-1e17-449b-9123-e0e91cf09067}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Vector3">
+      <UniqueIdentifier>{51ec9b81-d982-4366-ad3c-8e9dc90fc646}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -81,14 +90,23 @@
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>ソース ファイル\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Vector2.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>ソース ファイル\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="FileAccess.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderVariable.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>ソース ファイル\Vector</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>ソース ファイル\Vector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +127,12 @@
     </FxCompile>
     <FxCompile Include="Shader\SandBox\VertexShader.hlsl">
       <Filter>リソース ファイル\Shader\SandBox</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\MultiTexture\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\MultiTexture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\MultiTexture\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\MultiTexture</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -154,14 +178,23 @@
     <ClInclude Include="MeshRenderer.h">
       <Filter>ヘッダー ファイル\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>ヘッダー ファイル\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="FileAccess.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderVariable.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>ヘッダー ファイル\Vector3</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>ヘッダー ファイル\Vector3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

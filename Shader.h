@@ -7,51 +7,128 @@
 #include <d3dcompiler.h>
 #include <iostream>
 
-#include <unordered_map>			//シェーダーを管理するために利用
+#include <array>
+
 #include <string>
 #include <corecrt_wstring.h>
 #include "FileAccess.h"
+#include "ShaderVariable.h"
 
 #pragma comment(lib, "d3d11.lib")	//リンクするために必要
 #pragma comment(lib, "d3dCompiler.lib")
 
 using namespace std;
 
+enum class ShaderStage;
+class GeneratedShader;
+
 //
 // シェーダーを読み込んで管理するクラス
 //
 class Shader final {
+public:
 
-	static ID3D11InputLayout*	pVertexLayout;			//入力アセンブラーステージの入力データにアクセス
+	static const size_t ShaderStageSize = 2;
+
+private:
+
+	static vector<vector<D3D11_INPUT_ELEMENT_DESC>> _inputLayoutDescList;
+
 	static D3D11_INPUT_ELEMENT_DESC vertexDesc[];		//ここに定義した内容が頂点シェーダーに送られる
-	static vector<wstring> shaderNameList;				//読み込まれているシェーダーのリスト
+
+	static vector<GeneratedShader*> loadedShaderList;		//読み込まれているシェーダーのリスト
 
 private:
 	Shader();
 
 public:
 
-	static unordered_map<wstring, ID3D11VertexShader*>	pVertexShaderMap;	//頂点シェーダーステージを制御する実行可能プログラム (頂点シェーダー) を管理
-	static unordered_map<wstring, ID3D11PixelShader*>	pPixelShaderMap;	//ピクセルシェーダーステージを制御する実行可能プログラム (ピクセル シェーダー) を管理
-
-	static HRESULT Initialize(ID3D11Device* device);
+	static HRESULT Initialize(ID3D11Device &);
 	static void Finalize();
 
 	// 名前を指定してシェーダーを取得する
-	static void GetShader(wstring name, ID3D11VertexShader* &pVertexShader, ID3D11PixelShader* &pPixelShader);
-
-	// その名前のシェーダーが存在しているか調べる
-	static bool IsValidShader(wstring name);
-
-	// 頂点シェーダーの作成
-	static HRESULT CreateVertexShader(ID3D11Device* device, const wchar_t* vs, ID3D11VertexShader* &pVertexShader);
-	// ピクセルシェーダーの作成
-	static HRESULT CreatePixelShader(ID3D11Device* device, const wchar_t* ps, ID3D11PixelShader* &pPixelShader);
+	static bool FindShader(const wstring, const ID3D11VertexShader* &, const ID3D11PixelShader* &);
+	static const GeneratedShader* const FindShader(const wstring &);
 
 	// ファイルを指定してシェーダーをコンパイルする
-	static HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+	static HRESULT CompileShaderFromFile(WCHAR*, LPCSTR, LPCSTR, ID3DBlob**);
 
-	// 入力アセンブラーステージに入力レイアウトオブジェクトをバインドする
-	static void BindInputLayout(ID3D11DeviceContext* pDeviceContext);
+private:
+	// 頂点シェーダーの作成
+	static HRESULT CreateVertexShader(ID3D11Device &, const wchar_t*, ID3D11VertexShader* &, ID3D11InputLayout* &, ID3D11ShaderReflection* &);
+	// ピクセルシェーダーの作成
+	static HRESULT CreatePixelShader(ID3D11Device &, const wchar_t*, ID3D11PixelShader* &, ID3D11ShaderReflection* &);
+
+	//
+	static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE, BYTE);
+
 };
 
+//
+// シェーダーのステージ名
+//
+enum class ShaderStage {
+	Vertex,
+	Pixel,
+};
+
+//
+// シェーダーのデータアセット
+//
+class GeneratedShader {
+
+	wstring _name;
+
+	ID3D11VertexShader* _vertexShader;
+	ID3D11InputLayout* _inputLayout;
+
+	ID3D11PixelShader* _pixelShader;
+
+	vector<ShaderVariable*> _shaderVariables;
+
+public:
+
+	GeneratedShader(
+		wstring name,
+		ID3D11VertexShader* vertexShader,
+		ID3D11InputLayout* inputLayout,
+		ID3D11PixelShader* pixelShader,
+		vector<ShaderVariable*> ShaderVariables
+	) :
+		_name(name),
+		_vertexShader(vertexShader),
+		_inputLayout(inputLayout),
+		_pixelShader(pixelShader),
+		_shaderVariables(ShaderVariables) {}
+
+	~GeneratedShader() {
+		if (_vertexShader) _vertexShader->Release();
+		if (_inputLayout) _inputLayout->Release();
+		if (_pixelShader) _pixelShader->Release();
+
+		for (auto variable : _shaderVariables) {
+			if (variable) delete variable;
+		}
+	}
+
+	// getter
+	const wstring GetName() const {
+		return _name;
+	}
+
+	ID3D11VertexShader* const GetVertexShader() const {
+		return _vertexShader;
+	}
+
+	ID3D11InputLayout* const GetInputLayout() const {
+		return _inputLayout;
+	}
+
+	ID3D11PixelShader* const GetPixelShader() const {
+		return _pixelShader;
+	}
+
+	vector<ShaderVariable*> const GetVertexShaderVariables() const {
+		return _shaderVariables;
+	}
+};

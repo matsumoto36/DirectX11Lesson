@@ -11,6 +11,8 @@ struct Vertex {
 	float uv[2];
 };
 
+class Mesh;
+
 enum class PrimitiveType {
 	Polygon,
 	Star,
@@ -18,6 +20,7 @@ enum class PrimitiveType {
 
 class Primitive {
 
+	const static vector<Mesh*> meshData;
 	const static vector<Vertex> polygon;
 	const static vector<Vertex> star;
 
@@ -25,6 +28,6 @@ public:
 	Primitive();
 	~Primitive();
 
-	static const vector<Vertex> GetPrimitiveVertex(PrimitiveType type);
+	static Mesh* GetPrimitiveMesh(PrimitiveType type);
 };
 

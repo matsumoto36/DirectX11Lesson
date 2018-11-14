@@ -18,8 +18,8 @@ public:
 		: texture(texture) {
 		//ƒTƒCƒY‚ðŽ‚Á‚Ä‚­‚é
 		auto size = texture->GetSize();
-		rect.width = size.x;
-		rect.height = size.y;
+		rect.width = static_cast<int>(size.x);
+		rect.height = static_cast<int>(size.y);
 	}
 
 	Sprite(Texture* texture, Rect rect)

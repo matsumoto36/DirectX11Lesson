@@ -21,46 +21,53 @@ using namespace DirectX;
 //
 class Mesh {
 
-	vector<Vertex>	modelData;		//モデルの頂点データ
+	vector<Vertex> _vertex;		//モデルの頂点データ
+	vector<int> _indices;		//モデルの三角形の順のデータ
 
 public:
 
-	Mesh(const vector<Vertex> modelData) : modelData(modelData) {
+	Mesh(vector<Vertex> vertex, vector<int> indices)
+		: _vertex(vertex), _indices(indices) {}
 
-	}
+	Mesh(const Mesh &mesh) 
+		: _vertex(mesh._vertex), _indices(mesh._indices) {}
 
-	Mesh(PrimitiveType type) : modelData(Primitive::GetPrimitiveVertex(type)) {
-
-	}
+	//Mesh(PrimitiveType type) {
+	//	auto mesh = Primitive::GetPrimitiveMesh(type)
+	//}
 
 	~Mesh() {}
 
-	const vector<Vertex>& GetModelData() {
-		return modelData;
+	const vector<Vertex>& GetVertex() {
+		return _vertex;
+	}
+
+	const vector<int>& GetIndices() {
+		return _indices;
 	}
 
 	// 頂点カラーを設定する
 	void SetColor(float r, float g, float b, float a) {
 
-		for (size_t i = 0; i < modelData.size(); i++) {
-			modelData[i].col[0] = r;
-			modelData[i].col[1] = g;
-			modelData[i].col[2] = b;
-			modelData[i].col[3] = a;
+		for (size_t i = 0; i < _vertex.size(); i++) {
+			_vertex[i].col[0] = r;
+			_vertex[i].col[1] = g;
+			_vertex[i].col[2] = b;
+			_vertex[i].col[3] = a;
 		}
 
 	}
 
 	// uvの値をセットする
-	void SetUV(int index, float u, float v) {
+	void SetUV(size_t index, float u, float v) {
 
-		if (index < 0 || index >= modelData.size()) {
+		if (index < 0 || index >= _vertex.size()) {
 			cout << "[Error] failed Set UV at " << index << "." << endl;
 			return;
 		}
 
-		modelData[index].uv[0] = u;
-		modelData[index].uv[1] = v;
+		_vertex[index].uv[0] = u;
+		_vertex[index].uv[1] = v;
 	}
 
 };

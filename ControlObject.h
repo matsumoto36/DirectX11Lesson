@@ -28,8 +28,7 @@ class ControlObject {
 
 	BYTE key[256];
 
-	Texture* walkTexture;
-	Texture* texture;
+	vector<Texture*> textures;
 
 	vector<Sprite*> sprites;
 	Sprite* sprite;
@@ -49,8 +48,10 @@ public:
 	}
 	~ControlObject() {
 
-		if (walkTexture) delete walkTexture;
-		if (texture) delete texture;
+		for (auto tex : textures) {
+			if (tex) delete tex;
+		}
+		textures.clear();
 
 		for (size_t i = 0; i < sprites.size(); i++) {
 			delete sprites[i];

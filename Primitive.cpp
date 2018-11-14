@@ -1,10 +1,27 @@
 #include "Primitive.h"
+#include "Mesh.h"
+
+const vector<Mesh*> Primitive::meshData = {
+	//polygon
+	new Mesh(
+		vector<Vertex> {
+			{ { -0.5f, -0.5f,  0.0f},{ 1.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
+			{ { -0.5f,  0.5f,  0.0f},{ 1.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } },
+			{ {  0.5f, -0.5f,  0.0f},{ 1.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 1.0f } },
+			{ {  0.5f,  0.5f,  0.0f},{ 1.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 0.0f } },
+		},
+		vector<int> {
+			{0, 1, 2, 3, 2, 0}
+		})
+	//star
+	//new Mesh(),
+};
 
 const vector<Vertex> Primitive::polygon = vector<Vertex>{
-	{ { -0.5f, -0.5f,  0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
-	{ { -0.5f,  0.5f,  0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } },
-	{ {  0.5f, -0.5f,  0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 1.0f } },
-	{ {  0.5f,  0.5f,  0.0f },{ 0.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 0.0f } },
+	{ { -0.5f, -0.5f,  0.0f},{ 0.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
+	{ { -0.5f,  0.5f,  0.0f},{ 0.0f, 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } },
+	{ {  0.5f, -0.5f,  0.0f},{ 0.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 1.0f } },
+	{ {  0.5f,  0.5f,  0.0f},{ 0.0f, 1.0f, 1.0f, 1.0f },{ 1.0f, 0.0f } },
 };
 
 const vector<Vertex> Primitive::star = vector<Vertex>{
@@ -43,20 +60,22 @@ const vector<Vertex> Primitive::star = vector<Vertex>{
 Primitive::Primitive() {}
 Primitive::~Primitive() {}
 
-const vector<Vertex> Primitive::GetPrimitiveVertex(PrimitiveType type) {
+Mesh* Primitive::GetPrimitiveMesh(PrimitiveType type) {
 
-	vector<Vertex> v;
+	//vector<Vertex> v;
 
-	switch (type) {
-		case PrimitiveType::Polygon:
-			copy(polygon.begin(), polygon.end(), back_inserter(v));
-			break;
-		case PrimitiveType::Star:
-			copy(star.begin(), star.end(), back_inserter(v));
-			break;
-		default:
-			break;
-	}
+	return new Mesh(*meshData[int(PrimitiveType::Polygon)]);
 
-	return v;
+	//switch (type) {
+	//	case PrimitiveType::Polygon:
+	//		return new meshData;
+	//		break;
+	//	case PrimitiveType::Star:
+	//		copy(star.begin(), star.end(), back_inserter(v));
+	//		break;
+	//	default:
+	//		break;
+	//}
+
+	//return v;
 }

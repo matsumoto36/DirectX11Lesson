@@ -17,20 +17,12 @@ struct VS_OUT {
 	float2 uv  : TEXCOORD0;
 };
 
-cbuffer cb {
-	float3 f1;
-	float3 f2;
-	float3 f3;
-	float3 f4;
-}
-
 //座標行列データを受け取る
-cbuffer ConstantBuffer {
+cbuffer ConstantBuffer : register(b0) {
 	matrix World;		//ワールド座標行列
 	matrix View;		//ビュー座標行列
 	matrix Projection;	//プロジェクション座標行列
 }
-
 
 VS_OUT main(VS_IN input) {
 

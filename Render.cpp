@@ -3,7 +3,7 @@
 //描画するモデルのリスト
 vector<reference_wrapper<Renderer>> Render::rendererList;
 
-ID3D11Buffer*			Render::g_pConstantBuffer;
+//ID3D11Buffer*			Render::g_pConstantBuffer;
 
 XMMATRIX Render::g_View;
 XMMATRIX Render::g_Proj;
@@ -30,9 +30,6 @@ ID3D11BlendState*		Render::g_pBlendState = nullptr;
 ID3D11RasterizerState*	Render::g_pRasterizerState = nullptr;
 
 ID3D11SamplerState*		Render::g_pSamplerState = nullptr;
-
-//debug
-Vector2 Render::size = Vector2(512.0f, 512.0f);
 
 //
 // ウィンドウプロシージャ
@@ -229,12 +226,12 @@ HRESULT Render::InitDevice() {
 		g_pDepthStencilView		//デバイスにバインドする深度ステンシル ビューへのポインタ
 	);
 
-	g_ViewPort.TopLeftX = 0.0f;		//ビューポートの左側のX位置
-	g_ViewPort.TopLeftY = 0.0f;		//ビューポートの上部のY位置
-	g_ViewPort.Width = windowSizeX;	//ビューポートの幅
-	g_ViewPort.Height = windowSizeY;//ビューポートの高さ
-	g_ViewPort.MinDepth = 0.0f;		//ビューポートの最小深度
-	g_ViewPort.MaxDepth = 1.0f;		//ビューポートの最大深度
+	g_ViewPort.TopLeftX = 0.0f;							//ビューポートの左側のX位置
+	g_ViewPort.TopLeftY = 0.0f;							//ビューポートの上部のY位置
+	g_ViewPort.Width = static_cast<float>(windowSizeX);	//ビューポートの幅
+	g_ViewPort.Height = static_cast<float>(windowSizeY);	//ビューポートの高さ
+	g_ViewPort.MinDepth = 0.0f;							//ビューポートの最小深度
+	g_ViewPort.MaxDepth = 1.0f;							//ビューポートの最大深度
 
 	//パイプラインのラスタライザーステージにビューポートの配列をバインド
 	g_pImmedicateContext->RSSetViewports(1, &g_ViewPort);
@@ -301,7 +298,7 @@ HRESULT Render::InitDevice() {
 	);
 
 	//シェーダーの初期設定
-	if (FAILED(Shader::Initialize(g_pd3dDevice))) return E_FAIL;
+	if (FAILED(Shader::Initialize(*g_pd3dDevice))) return E_FAIL;
 
 	//必要な情報をセット
 	Renderer::SetRenderData(
@@ -318,11 +315,11 @@ HRESULT Render::InitDevice() {
 	descCBuffer.CPUAccessFlags = 0;						//CPUアクセスのフラグ
 
 	//バッファの作成
-	hr = g_pd3dDevice->CreateBuffer(
-		&descCBuffer,			//バッファの記述へのポインタ
-		nullptr,				//初期化データへのポインタ
-		&g_pConstantBuffer		//作成されるバッファへのポインタのアドレス
-	);
+	//hr = g_pd3dDevice->CreateBuffer(
+	//	&descCBuffer,			//バッファの記述へのポインタ
+	//	nullptr,				//初期化データへのポインタ
+	//	&g_pConstantBuffer		//作成されるバッファへのポインタのアドレス
+	//);
 
 	if (FAILED(hr)) return E_FAIL;
 
@@ -395,69 +392,77 @@ void Render::Rendering() {
 
 		auto renderer = &rendererList[i].get();
 
-		if (!renderer->isRender) continue;
+		if (!renderer->IsRender) continue;
+
 
 		//サブリソースの更新
-		renderer->UpdateSubResource(g_pImmedicateContext);
-
-		//入力アセンブラーステージに入力レイアウトオブジェクトをバインド
-		Shader::BindInputLayout(g_pImmedicateContext);
+		renderer->OnUpdateSubResource(g_pImmedicateContext);
 
 		//座標行列構造体の変数を定義
 		ConstantBuffer cb;
 
 		//行列を転置
-		cb.world = XMMatrixTranspose(renderer->transform);
+		cb.world = XMMatrixTranspose(renderer->GetTransform());
 		cb.view = XMMatrixTranspose(g_View);
 		cb.projection = XMMatrixTranspose(g_Proj);
 
-		cb.size = size;
-
 		//データをコピーしてg_pConstantBufferの内容を書き換える
-		g_pImmedicateContext->UpdateSubresource(
-			g_pConstantBuffer,	//コピー先リソースへのポインタ
-			0,					//コピー先のサブリソースを特定するためのインデックス
-			nullptr,			//リソースデータのコピー先となるサブリソースの部分を定義
-			&cb,				//コピー元データへのポインタ
-			0,					//コピー元データの一行のアドレス
-			0					//コピー元データの1深度スライスのサイズ
-		);
+		//g_pImmedicateContext->UpdateSubresource(
+		//	g_pConstantBuffer,	//コピー先リソースへのポインタ
+		//	0,					//コピー先のサブリソースを特定するためのインデックス
+		//	nullptr,			//リソースデータのコピー先となるサブリソースの部分を定義
+		//	&cb,				//コピー元データへのポインタ
+		//	0,					//コピー元データの一行のアドレス
+		//	0					//コピー元データの1深度スライスのサイズ
+		//);
 
+		if (auto material = renderer->GetMaterial()) {
+
+			//行列データを転送
+			material->SetMatrix("World", cb.world);
+			material->SetMatrix("View", cb.view);
+			material->SetMatrix("Projection", cb.projection);
+
+			//シェーダーを設定
+			material->SetShader(*g_pImmedicateContext);
+
+			//コンスタントバッファの更新
+			material->UpdateConstantBuffer(*g_pImmedicateContext);
+			material->SetConstantBuffer(*g_pImmedicateContext);
+		}
+
+		//頂点シェーダーで使用される定数バッファを設定
+		//g_pImmedicateContext->VSSetConstantBuffers(
+		//	0,					//デバイスの配列の中で定数バッファの設定を開始する位置
+		//	1,					//設定するバッファの数
+		//	&g_pConstantBuffer	//デバイスに設定する定数バッファの配列
+		//);
+
+		//テクスチャ系
+		if (auto material = renderer->GetMaterial()) {
+			//material->UpdateShaderResourceView(*g_pImmedicateContext);
+			//material->UpdateSampler(*g_pImmedicateContext);
+
+			//入力アセンブラーステージに入力レイアウトオブジェクトをバインド
+			material->SetInputLayout(*g_pImmedicateContext);
+			//g_pImmedicateContext->IASetInputLayout(Shader::pVertexLayout);
+		}
 
 		//入力アセンブラーステージに頂点バッファーの配列をバインド
 		g_pImmedicateContext->IASetVertexBuffers(
-			0,						//バインドに使用する最初の入力スロット
-			1,						//配列内の頂点バッファーの数
-			&renderer->pVertexBuffer,	//頂点バッファーの配列へのポインター
-			&strides,				//ストライド値 : 頂点バッファーで使用される要素のサイズ (バイト単位)
-			&offsets				//オフセット値 : 頂点バッファー内の先頭の要素と、使用される最初の要素との間隔
+			0,								//バインドに使用する最初の入力スロット
+			1,								//配列内の頂点バッファーの数
+			&renderer->GetVertexBuffer(),	//頂点バッファーの配列へのポインター
+			&strides,						//ストライド値 : 頂点バッファーで使用される要素のサイズ (バイト単位)
+			&offsets						//オフセット値 : 頂点バッファー内の先頭の要素と、使用される最初の要素との間隔
 		);
 
-		//頂点シェーダーをデバイスに設定
-		g_pImmedicateContext->VSSetShader(
-			renderer->pVertexShader,	//頂点シェーダ－のポインター
-			nullptr,			//クラスインスタンスインターフェースの配列へのポインター
-			0					//配列のクラスインスタンスインターフェースの数
+		//インデックスバッファを設定
+		g_pImmedicateContext->IASetIndexBuffer(
+			renderer->GetIndexBuffer(),
+			DXGI_FORMAT_R32_UINT,
+			0
 		);
-
-		//頂点シェーダーで使用される定数バッファを設定
-		g_pImmedicateContext->VSSetConstantBuffers(
-			0,					//デバイスの配列の中で定数バッファの設定を開始する位置		
-			1,					//設定するバッファの数
-			&g_pConstantBuffer	//デバイスに設定する定数バッファの配列
-		);
-
-		//ピクセルシェーダーをデバイスに設定
-		g_pImmedicateContext->PSSetShader(
-			renderer->pPixelShader,		//ピクセルシェーダ－のポインター
-			nullptr,			//クラスインスタンスインターフェースの配列への
-			0					//配列のクラスインスタンスインターフェースの数
-		);
-
-		//リソースを設定
-		renderer->SetShaderResources(g_pImmedicateContext);
-
-
 
 		//プリミティブ タイプおよびデータの順序に関する情報をバインド 
 		//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST		頂点データを三角形のリストとして解釈(2つの三角形で6個の頂点)
@@ -465,7 +470,7 @@ void Render::Rendering() {
 		g_pImmedicateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		//描画
-		renderer->Draw(g_pImmedicateContext);
+		renderer->OnDraw(g_pImmedicateContext);
 
 	}
 
@@ -493,5 +498,5 @@ void Render::CleanupDevice() {
 
 	if (g_pBlendState) g_pBlendState->Release();
 	if (g_pRasterizerState) g_pRasterizerState->Release();
-	if (g_pConstantBuffer) g_pConstantBuffer->Release();
+	//if (g_pConstantBuffer) g_pConstantBuffer->Release();
 }

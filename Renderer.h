@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Shader.h"
+#include "Material.h"
 
 #pragma comment(lib, "d3d11.lib")	//リンクするために必要
 #pragma comment(lib, "d3dCompiler.lib")
@@ -22,32 +23,42 @@ class Renderer {
 
 protected:
 
-	static ID3D11Device* device;
-	static vector<reference_wrapper<Renderer>>* rendererList;	//Renderからの参照
+	static ID3D11Device* _device;
+	static vector<reference_wrapper<Renderer>>* _rendererList;	//Renderからの参照
+
+	ID3D11Buffer*					_vertexBuffer;	//頂点バッファのデータ
+	ID3D11Buffer*					_indicesBuffer;	//インデックスバッファのデータ
+	Material*						_material;		//マテリアルのデータ
+	XMFLOAT4X4						_transform;		//描画の座標データ XMMATRIXはx86系でアラインが8になるらしい
 
 public:
 
-	bool						isRender;		//描画するか
-	XMMATRIX					transform;		//描画の座標データ
-	ID3D11Buffer*				pVertexBuffer;	//頂点バッファーのデータ
-	ID3D11VertexShader*			pVertexShader;	//頂点シェーダー
-	ID3D11PixelShader*			pPixelShader;	//ピクセルシェーダー
+	bool								IsRender;		//描画するか
 
 protected:
 	Renderer() {
-		isRender = true;
-		rendererList->push_back(*this);
+		IsRender = true;
+		_vertexBuffer = nullptr;
+		_indicesBuffer = nullptr;
+		SetTransform(XMMatrixIdentity());
+
+		//とりあえず
+		//_material = new class Material(L"Unlit");
+
+		_rendererList->push_back(*this);
 	}
 
 
 public:
 	~Renderer() {
 
+		if(_material) delete _material;
+
 		//リストから削除
-		auto itr = rendererList->begin();
-		while (itr != rendererList->end()) {
+		auto itr = _rendererList->begin();
+		while (itr != _rendererList->end()) {
 			if (&(*itr).get() == this) {
-				itr = rendererList->erase(itr);
+				itr = _rendererList->erase(itr);
 			}
 			else {
 				itr++;
@@ -55,29 +66,47 @@ public:
 		}
 
 		//バッファーリソースの開放
-		if (pVertexBuffer) pVertexBuffer->Release();
+		if (_vertexBuffer) _vertexBuffer->Release();
+	}
+
+	// getter
+
+	// 座標行列を変換して取得する
+	XMMATRIX GetTransform() const {
+		return XMLoadFloat4x4(&_transform);
+	}
+
+	// 座標行列を変換してセットする
+	void SetTransform(const XMMATRIX transform) {
+		XMStoreFloat4x4(&_transform, transform);
+	}
+
+	ID3D11Buffer* & GetVertexBuffer() {
+		return _vertexBuffer;
+	}
+
+	ID3D11Buffer* & GetIndexBuffer() {
+		return _indicesBuffer;
+	}
+
+	const class Material* GetMaterial() const {
+		return _material;
+	}
+
+	void SetMaterial(Material* const material) {
+		_material = material;
 	}
 
 	// サブリソースの更新時に呼ばれる
-	virtual void UpdateSubResource(ID3D11DeviceContext* const context) {}
-
-	// シェーダーのセット後に呼ばれる
-	virtual void SetShaderResources(ID3D11DeviceContext* const context) {}
+	virtual void OnUpdateSubResource(ID3D11DeviceContext* const context) {}
 
 	// 描画されるときに呼ばれる
-	virtual void Draw(ID3D11DeviceContext* const context) {}
-
-	// シェーダーを設定する
-	void SetShader(wstring name) {
-		//シェーダーを取得
-		Shader::GetShader(name, pVertexShader, pPixelShader);
-	}
-
+	virtual void OnDraw(ID3D11DeviceContext* const context) {}
 
 	// 生成に必要なデータを保持しておく
-	static void SetRenderData(ID3D11Device* device, vector<reference_wrapper<Renderer>>& rendererList) {
-		Renderer::device = device;
-		Renderer::rendererList = &rendererList;
+	static void SetRenderData(ID3D11Device* const device, vector<reference_wrapper<Renderer>>& rendererList) {
+		Renderer::_device = device;
+		Renderer::_rendererList = &rendererList;
 	}
 };
 

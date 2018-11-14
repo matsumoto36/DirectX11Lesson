@@ -5,7 +5,7 @@
 struct VS_IN {
 
 	//D3D11_INPUT_ELEMENT_DESCで定義したセマンティクス名・インデックス番号
-	float4 pos : POSITION0;
+	float3 pos : POSITION0;
 	float4 col : COLOR0;
 	float2 uv  : TEXCOORD0;
 };

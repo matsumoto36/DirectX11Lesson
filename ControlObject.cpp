@@ -3,17 +3,30 @@
 void ControlObject::Start() {
 
 	//テクスチャ読み込み
-	walkTexture = new Texture(L"Resources/Texture/player.png");
-	texture = new Texture(L"Resources/Texture/tex.jpg");
+	//textures.push_back(new Texture(L"Resources/Texture/player.png"));
+	//textures.push_back(new Texture(L"Resources/Texture/image1.jpg"));
+	//textures.push_back(new Texture(L"Resources/Texture/image2.jpg"));
+	//textures.push_back(new Texture(L"Resources/Texture/tex.jpg"));
 
 	//スプライト作成
-	for (size_t i = 0; i < 7; i++) {
-		sprites.push_back(new Sprite(walkTexture, Rect(64 * i, 0, 64, 64)));
-	}
-	sprite = new Sprite(texture);
+	//for (size_t i = 0; i < 7; i++) {
+	//	sprites.push_back(new Sprite(textures[0], Rect(64 * i, 0, 64, 64)));
+	//}
+	//sprite = new Sprite(textures[2]);
 
+	renderer = new SpriteRenderer(nullptr);
+	
+	auto mat = new Material(L"Unlit");
+	renderer->SetMaterial(mat);
+	mat->SetFloat3("Red", Vector3(1, 0, 0));
+	mat->SetFloat3("Green", Vector3(0, 1, 0));
+	mat->SetFloat3("Blue", Vector3(0, 0, 1));
+	mat->SetFloat3("White", Vector3(1, 1, 1));
+	//mat->SetFloat("Gray", 0.5f);
+	//mat->SetTexture("mainTexture", *textures[2]);
+	//mat->SetTexture("mainTexture2", *textures[2]);
+	//mat->SetTexture("mainTexture3", *textures[3]);
 
-	renderer = new SpriteRenderer(sprites[0]);
 }
 
 void ControlObject::Update() {
@@ -84,9 +97,11 @@ void ControlObject::Quest1() {
 		walkState = 0;
 	}
 
-	renderer->SetShader(L"Texture");
-	renderer->transform = XMMatrixScaling(scaleX, 1, 1);
-	renderer->transform *= XMMatrixTranslation(posX, 0, 0);
+	//renderer->SetShader(L"Texture");
+	auto transform = renderer->GetTransform();
+	transform = XMMatrixScaling(scaleX, 1, 1);
+	transform *= XMMatrixTranslation(posX, 0, 0);
+	renderer->SetTransform(transform);
 
 	renderer->SetSprite(sprites[walkState]);
 }
@@ -96,23 +111,24 @@ void ControlObject::Quest2() {
 	float speed = 1000;
 
 	if (key[VK_LEFT] & 0x80) {
-		Render::size.x -= speed * Time::GetDeltaTime();
+		//Render::size.x -= speed * Time::GetDeltaTime();
 	}
 	else if (key[VK_RIGHT] & 0x80) {
-		Render::size.x += speed * Time::GetDeltaTime();
+		//Render::size.x += speed * Time::GetDeltaTime();
 	}
 
 	if (key[VK_UP] & 0x80) {
-		Render::size.y -= speed * Time::GetDeltaTime();
+		//Render::size.y -= speed * Time::GetDeltaTime();
 	}
 	else if (key[VK_DOWN] & 0x80) {
-		Render::size.y += speed * Time::GetDeltaTime();
+		//Render::size.y += speed * Time::GetDeltaTime();
 	}
 
-	renderer->SetShader(L"Blur");
-	renderer->SetSprite(sprite);
-	renderer->transform = XMMatrixTranslation(posX, 0, -2);
-
+	//renderer->SetShader(L"Blur");
+	//renderer->SetSprite(sprite);
+	//auto transform = renderer->GetTransform();
+	//transform = XMMatrixTranslation(posX, 0, -2);
+	//renderer->SetTransform(transform);
 }
 
 

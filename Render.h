@@ -23,7 +23,6 @@ struct ConstantBuffer {
 	XMMATRIX world;			//ワールド変換行列
 	XMMATRIX view;			//ビュー変換行列
 	XMMATRIX projection;	//プロジェクション変換行列
-	Vector2 size;
 };
 
 //
@@ -35,7 +34,7 @@ class Render final {
 	static vector<reference_wrapper<Renderer>> rendererList;
 
 	//座標系データを保存
-	static ID3D11Buffer* g_pConstantBuffer;
+	//static ID3D11Buffer* g_pConstantBuffer;
 
 	static XMMATRIX g_View;		//ビュー変換行列
 	static XMMATRIX g_Proj;		//プロジェクション変換行列
@@ -66,8 +65,6 @@ class Render final {
 	static ID3D11SamplerState*		g_pSamplerState;			//テクスチャのサンプラーステート
 
 public:
-	//debug
-	static Vector2 size;
 
 private:
 	Render();

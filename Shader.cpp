@@ -1,20 +1,16 @@
 #include "Shader.h"
 
-ID3D11InputLayout*							Shader::pVertexLayout = nullptr;
+vector<vector<D3D11_INPUT_ELEMENT_DESC>> Shader::_inputLayoutDescList;
 
-D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[]{
-	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	0,								D3D11_INPUT_PER_VERTEX_DATA,	0 },
+D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[] {
+	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
 	{ "COLOR",		0,	DXGI_FORMAT_R32G32B32A32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
 	{ "TEXCOORD",	0,	DXGI_FORMAT_R32G32_FLOAT,		0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
 };
 
-vector<wstring> Shader::shaderNameList;
+vector<GeneratedShader*> Shader::loadedShaderList;
 
-unordered_map<wstring, ID3D11VertexShader*>	Shader::pVertexShaderMap;
-unordered_map<wstring, ID3D11PixelShader*>	Shader::pPixelShaderMap;
-
-
-HRESULT Shader::Initialize(ID3D11Device* device) {
+HRESULT Shader::Initialize(ID3D11Device &device) {
 
 	//カレントディレクトリから、読み込むシェーダーのディレクトリを取得
 	wchar_t cdir[255];
@@ -27,8 +23,9 @@ HRESULT Shader::Initialize(ID3D11Device* device) {
 	//シェーダーを作成
 	for (auto item : directories) {
 
-		pVertexShaderMap.emplace(item, nullptr);
-		pPixelShaderMap.emplace(item, nullptr);
+
+		ID3D11PixelShader* pixelShader = nullptr;
+		ID3D11ShaderReflection* pixelShaderReflection = nullptr;
 
 		auto basePath = L"Shader/";
 		auto vertexShaderFileName = basePath + item + L"/VertexShader.hlsl";
@@ -37,17 +34,27 @@ HRESULT Shader::Initialize(ID3D11Device* device) {
 		try {
 			HRESULT hr;
 			
-			hr = CreateVertexShader(device, (vertexShaderFileName).c_str(), pVertexShaderMap[item]);
+			//シェーダーの作成
+			ID3D11VertexShader* vertexShader = nullptr;
+			ID3D11InputLayout* inputLayout = nullptr;
+			ID3D11ShaderReflection* vertexShaderReflection = nullptr; 
+			hr = CreateVertexShader(device, (vertexShaderFileName).c_str(), vertexShader, inputLayout, vertexShaderReflection);
 			if(FAILED(hr)) throw hr;
-			hr = CreatePixelShader(device, (pixelShaderFileName).c_str(), pPixelShaderMap[item]);
+			hr = CreatePixelShader(device, (pixelShaderFileName).c_str(), pixelShader, pixelShaderReflection);
 			if (FAILED(hr)) throw hr;
-
-			shaderNameList.push_back(item);
+	
+			loadedShaderList.push_back(new GeneratedShader(
+				item,
+				vertexShader,
+				inputLayout,
+				pixelShader,
+				vector<ShaderVariable*> {//ShaderStageの順に入れる
+					new ShaderVariable(device, *vertexShaderReflection),
+					new ShaderVariable(device, *pixelShaderReflection)
+				}
+			));
 		}
 		catch (int error) {
-
-			pVertexShaderMap.erase(item);
-			pPixelShaderMap.erase(item);
 
 			cout << item.c_str() << "シェーダーが読み込めませんでした" << endl;
 
@@ -62,37 +69,37 @@ HRESULT Shader::Initialize(ID3D11Device* device) {
 void Shader::Finalize() {
 
 	//シェーダーを開放
-	for (auto item : shaderNameList) {
-		if (pVertexShaderMap[item]) delete pVertexShaderMap[item];
-		if (pPixelShaderMap[item]) delete pPixelShaderMap[item];
+	for (size_t i = 0; i < loadedShaderList.size(); i++) {
+		if (loadedShaderList[i]) delete loadedShaderList[i];
 	}
 
-	shaderNameList.clear();
-	pVertexShaderMap.clear();
-	pPixelShaderMap.clear();
+	loadedShaderList.clear();
 
 	//入力レイアウトの開放
-	if (pVertexLayout) pVertexLayout->Release();
+	//if (pVertexLayout) pVertexLayout->Release();
 }
 
-void Shader::GetShader(wstring name, ID3D11VertexShader* &pVertexShader, ID3D11PixelShader* &pPixelShader) {
+bool Shader::FindShader(const wstring name, const ID3D11VertexShader* &vertexShader, const ID3D11PixelShader* &pixelShader) {
 
-	if (!IsValidShader(name)) return;
-
-	pVertexShader = pVertexShaderMap[name];
-	pPixelShader = pPixelShaderMap[name];
-}
-
-bool Shader::IsValidShader(wstring name) {
-
-	for (auto item : shaderNameList) {
-		if (item == name) return true;
+	auto asset = FindShader(name);
+	if (asset) {
+		vertexShader = asset->GetVertexShader();
+		pixelShader = asset->GetPixelShader();
 	}
 
-	return false;
+	return asset;
 }
 
-HRESULT Shader::CreateVertexShader(ID3D11Device* device, const wchar_t* vs, ID3D11VertexShader* &pVertexShader) {
+const GeneratedShader* const Shader::FindShader(const wstring &name) {
+
+	for (auto item : loadedShaderList) {
+		if (item->GetName() == name) return item;
+	}
+
+	return nullptr;
+}
+
+HRESULT Shader::CreateVertexShader(ID3D11Device &device, const wchar_t* vs, ID3D11VertexShader* &vertexShader, ID3D11InputLayout* &inputLayout, ID3D11ShaderReflection* &reflection) {
 	
 	ID3DBlob* pVSBlob = nullptr;
 	auto hr = S_OK;
@@ -105,31 +112,86 @@ HRESULT Shader::CreateVertexShader(ID3D11Device* device, const wchar_t* vs, ID3D
 		&pVSBlob
 	);
 
+	//リフレクションデータを格納
+	hr = D3DReflect(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr)) return E_FAIL;
+
 	//頂点シェーダーを作成
-	hr = device->CreateVertexShader(
+	hr = device.CreateVertexShader(
 		pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
 		pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
 		nullptr,						//クラスリンクインターフェイスへのポインタ
-		&pVertexShader				//ID3D11VertexShader インターフェイスへのポインタ
+		&vertexShader				//ID3D11VertexShader インターフェイスへのポインタ
 	);
 
 	if (FAILED(hr)) return E_FAIL;
 
-	//入力レイアウトを作成
-	hr = device->CreateInputLayout(
-		vertexDesc,					//入力アセンブラーステージの入力データ型の配列
-		ARRAYSIZE(vertexDesc),		//入力要素の配列内の入力データ型の数
-		pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
-		pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
-		&pVertexLayout				//作成される入力レイアウト オブジェクトへのポインタ
+	//入力レイアウトの作成
+	D3D11_SHADER_DESC shaderDesc;
+	reflection->GetDesc(&shaderDesc);
+	vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDescList;
+
+	for (size_t i = 0; i < shaderDesc.InputParameters; i++) {
+
+		D3D11_SIGNATURE_PARAMETER_DESC sigdesc;
+		reflection->GetInputParameterDesc(i, &sigdesc);
+
+		auto format = GetDxgiFormat(sigdesc.ComponentType, sigdesc.Mask);
+
+		D3D11_INPUT_ELEMENT_DESC desc = {
+			sigdesc.SemanticName,
+			sigdesc.SemanticIndex,
+			format,
+			0,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0 };
+
+		inputLayoutDescList.push_back(desc);
+	}
+
+	_inputLayoutDescList.push_back(inputLayoutDescList);
+	/*
+	D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[]{
+	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
+	{ "COLOR",		0,	DXGI_FORMAT_R32G32B32A32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
+	{ "TEXCOORD",	0,	DXGI_FORMAT_R32G32_FLOAT,		0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
+};
+*/
+	//inputLayoutDescList.data();
+
+	//hr = device.CreateInputLayout(
+	//	&inputLayoutDescList[0],			//入力アセンブラーステージの入力データ型の配列
+	//	inputLayoutDescList.size(),			//入力要素の配列内の入力データ型の数
+	//	pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
+	//	pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
+	//	&inputLayout				//作成される入力レイアウト オブジェクトへのポインタ
+	//);
+
+	//hr = device.CreateInputLayout(
+	//	&_inputLayoutDescList[_inputLayoutDescList.size() - 1][0],			//入力アセンブラーステージの入力データ型の配列
+	//	inputLayoutDescList.size(),			//入力要素の配列内の入力データ型の数
+	//	pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
+	//	pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
+	//	&inputLayout					//作成される入力レイアウト オブジェクトへのポインタ
+	//);
+
+	//このコードは動作する
+	hr = device.CreateInputLayout(
+		vertexDesc,					
+		ARRAYSIZE(vertexDesc),		
+		pVSBlob->GetBufferPointer(),
+		pVSBlob->GetBufferSize(),	
+		&inputLayout				
 	);
+
 	pVSBlob->Release();
 
 	return hr;
 }
 
 
-HRESULT Shader::CreatePixelShader(ID3D11Device* device, const wchar_t* ps, ID3D11PixelShader* &pPixelShader) {
+HRESULT Shader::CreatePixelShader(ID3D11Device &device, const wchar_t* ps, ID3D11PixelShader* &pixelShader, ID3D11ShaderReflection* &reflection) {
 
 	ID3DBlob* pPSBlob = nullptr;
 	auto hr = S_OK;
@@ -142,12 +204,16 @@ HRESULT Shader::CreatePixelShader(ID3D11Device* device, const wchar_t* ps, ID3D1
 		&pPSBlob
 	);
 
+	//リフレクションデータを格納
+	hr = D3DReflect(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflection);
+	if (FAILED(hr)) return E_FAIL;
+
 	//ピクセルシェーダーの作成
-	hr = device->CreatePixelShader(
+	hr = device.CreatePixelShader(
 		pPSBlob->GetBufferPointer(),		//コンパイル済みシェーダーへのポインタ
 		pPSBlob->GetBufferSize(),			//コンパイル済みピクセルシェーダーのサイズ
 		nullptr,							//クラスリンクインターフェイスへのポインタ
-		&pPixelShader						//ID3D11PixelShader インターフェイスへのポインタ
+		&pixelShader						//ID3D11PixelShader インターフェイスへのポインタ
 	);
 	pPSBlob->Release();
 
@@ -171,7 +237,7 @@ HRESULT Shader::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LP
 	ID3DBlob* pErrorBlob = nullptr;
 
 	//ファイルからシェーダーをコンパイル
-	hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel,
+	hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
 		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
 
 	if (FAILED(hr)) {
@@ -187,6 +253,38 @@ HRESULT Shader::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LP
 	return S_OK;
 }
 
-void Shader::BindInputLayout(ID3D11DeviceContext* pDeviceContext) {
-	pDeviceContext->IASetInputLayout(pVertexLayout);
+DXGI_FORMAT Shader::GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask) {
+	if ((mask & 0x0F) == 0x0F) {
+		// xyzw
+		switch (type) {
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+	}
+
+	if ((mask & 0x07) == 0x07) {
+		// xyz
+		switch (type) {
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32B32_FLOAT;
+		}
+	}
+
+	if ((mask & 0x03) == 0x03) {
+		// xy
+		switch (type) {
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32_FLOAT;
+		}
+	}
+
+	if ((mask & 0x1) == 0x1) {
+		// x
+		switch (type) {
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32_FLOAT;
+		}
+	}
+
+	return DXGI_FORMAT_UNKNOWN;
 }

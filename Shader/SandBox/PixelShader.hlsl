@@ -5,8 +5,6 @@
 struct PS_IN {
 	float4 pos : SV_POSITION;
 	float2 uv  : TEXCOORD0;
-	float2 size  : TEXCOORD1;
-
 };
 
 Texture2D    mainTexture : register(t0); //テクスチャー
@@ -71,6 +69,9 @@ float4 main(PS_IN input) : SV_TARGET
 	//	col += mainTexture.Sample(mainSampler, input.uv + (float2(blur * -i, blur * -i) / textureSize));
 	//}
 	//col /= blurLoop * 4;
+
+	//mask
+	//tex.a = (tex2.r + tex2.g + tex2.b) / 3 * tex2.a;
 
 	return float4(0, 0, 0, 1);
 

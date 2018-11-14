@@ -14,7 +14,7 @@ class SpriteRenderer : public Renderer {
 
 public:
 	SpriteRenderer(Sprite* sprite) {
-		polygon = new Mesh(PrimitiveType::Polygon);
+		polygon = Primitive::GetPrimitiveMesh(PrimitiveType::Polygon);
 		Init();
 
 		SetSprite(sprite);
@@ -29,35 +29,25 @@ public:
 	// スプライトをセットする
 	void SetSprite(Sprite* sprite) {
 		this->sprite = sprite;
+		if (!sprite) return;
 		UpdateUV();
 	}
 
-	virtual void UpdateSubResource(ID3D11DeviceContext* const context) override {
+	virtual void OnUpdateSubResource(ID3D11DeviceContext* const context) override {
 
 		context->UpdateSubresource(
-			pVertexBuffer,
+			_vertexBuffer,
 			0,
 			nullptr,
-			polygon->GetModelData().data(),
+			polygon->GetVertex().data(),
 			0, 0
 		);
 	}
-	virtual void SetShaderResources(ID3D11DeviceContext* const context) override {
 
-		//テクスチャを転送
-		if (!sprite) return;
-		if (!sprite->GetTexture()) return;
+	virtual void OnDraw(ID3D11DeviceContext* const context) override {
 
-		context->PSSetShaderResources(
-			0,
-			1,
-			&sprite->GetTexture()->resourceView);
-	
-	}
-
-	virtual void Draw(ID3D11DeviceContext* const context) override {
-
-		context->Draw(polygon->GetModelData().size(), 0);
+		//context->Draw(polygon->GetVertex().size(), 0);
+		context->DrawIndexed(polygon->GetIndices().size(), 0, 0);
 
 	}
 

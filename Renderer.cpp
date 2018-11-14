@@ -1,4 +1,4 @@
 #include "Renderer.h"
 
-ID3D11Device *Renderer::device = nullptr;
-vector<reference_wrapper<Renderer>> *Renderer::rendererList = nullptr;
+ID3D11Device *Renderer::_device = nullptr;
+vector<reference_wrapper<Renderer>> *Renderer::_rendererList = nullptr;
