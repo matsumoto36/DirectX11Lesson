@@ -139,6 +139,13 @@ bool Material::SetFloat3(const string &name, const Vector3 value) const {
 	return SetValue<Vector3>(name, value, D3D_SVT_FLOAT);
 }
 
+const Color Material::GetColor(const string &name) const {
+	return GetValue<Color>(name, D3D_SVT_FLOAT);
+}
+bool Material::SetColor(const string &name, const Color value) const {
+	return SetValue<Color>(name, value, D3D_SVT_FLOAT);
+}
+
 const XMMATRIX Material::GetMatrix(const string &name) const {
 	return GetValue<XMMATRIX>(name, D3D_SVT_FLOAT);
 }

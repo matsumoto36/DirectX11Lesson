@@ -12,6 +12,7 @@
 #include <math.h>
 #include <vector>
 
+#include "FBXLoader.h"
 #include "Time.h"
 #include "Mesh.h"
 #include "SpriteRenderer.h"
@@ -26,6 +27,8 @@
 //
 class ControlObject {
 
+	FBXLoader* _fbxLoader;
+
 	BYTE key[256];
 
 	vector<Texture*> textures;
@@ -33,7 +36,8 @@ class ControlObject {
 	vector<Sprite*> sprites;
 	Sprite* sprite;
 
-	SpriteRenderer* renderer;
+	SpriteRenderer* spriteRenderer;
+	MeshRenderer* meshRenderer;
 
 	int walkState = 0;
 	float spriteChangeTime = 0.1f;
@@ -43,10 +47,14 @@ class ControlObject {
 	float scaleX = 1;
 	float posX = 0;
 
+	float ratio = 0;
+
 public:
 	ControlObject() {
 	}
 	~ControlObject() {
+
+		if (_fbxLoader) delete _fbxLoader;
 
 		for (auto tex : textures) {
 			if (tex) delete tex;
@@ -58,7 +66,7 @@ public:
 		}
 		if (sprite) delete sprite;
 
-		if (renderer) delete renderer;
+		if (spriteRenderer) delete spriteRenderer;
 	}
 
 	void Start();
@@ -71,6 +79,9 @@ public:
 
 	void Quest1();
 	void Quest2();
+	void Quest3();
+	void Quest4();
+	void Quest5();
 
 
 	void ResetModelTransform();

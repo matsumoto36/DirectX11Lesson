@@ -21,53 +21,31 @@ using namespace DirectX;
 //
 class Mesh {
 
-	vector<Vertex> _vertex;		//モデルの頂点データ
-	vector<int> _indices;		//モデルの三角形の順のデータ
+	vector<Vertex>				_vertex;		//モデルの頂点データ
+	vector<int>					_indices;		//モデルの三角形の順のデータ
+
+	D3D11_PRIMITIVE_TOPOLOGY	_topology;		//データの順序
 
 public:
 
-	Mesh(vector<Vertex> vertex, vector<int> indices)
-		: _vertex(vertex), _indices(indices) {}
+	Mesh(vector<Vertex> vertex, vector<int> indices, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP)
+		: _vertex(vertex), _indices(indices), _topology(topology) {}
 
 	Mesh(const Mesh &mesh) 
-		: _vertex(mesh._vertex), _indices(mesh._indices) {}
-
-	//Mesh(PrimitiveType type) {
-	//	auto mesh = Primitive::GetPrimitiveMesh(type)
-	//}
+		: _vertex(mesh._vertex), _indices(mesh._indices), _topology(mesh._topology) {}
 
 	~Mesh() {}
 
-	const vector<Vertex>& GetVertex() {
+	const vector<Vertex>& GetVertex() const {
 		return _vertex;
 	}
 
-	const vector<int>& GetIndices() {
+	const vector<int>& GetIndices() const {
 		return _indices;
 	}
 
-	// 頂点カラーを設定する
-	void SetColor(float r, float g, float b, float a) {
-
-		for (size_t i = 0; i < _vertex.size(); i++) {
-			_vertex[i].col[0] = r;
-			_vertex[i].col[1] = g;
-			_vertex[i].col[2] = b;
-			_vertex[i].col[3] = a;
-		}
-
-	}
-
-	// uvの値をセットする
-	void SetUV(size_t index, float u, float v) {
-
-		if (index < 0 || index >= _vertex.size()) {
-			cout << "[Error] failed Set UV at " << index << "." << endl;
-			return;
-		}
-
-		_vertex[index].uv[0] = u;
-		_vertex[index].uv[1] = v;
+	const D3D11_PRIMITIVE_TOPOLOGY& GetPrimitiveTopology() const {
+		return _topology;
 	}
 
 };

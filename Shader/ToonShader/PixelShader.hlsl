@@ -18,13 +18,17 @@ SamplerState mainSampler; //サンプラー
 //エントリーポイント
 float4 main(PS_IN input) : SV_TARGET
 {
-	float3 normal = 2 * NormalTexture.Sample(mainSampler, input.uv).xyz - 1;
-	normal = normalize(normal);
-	float3 bright = saturate(dot(normal, Light));
-	return MainTexture.Sample(mainSampler, input.uv) * float4(bright, 1);
+	//float3 normal = 2 * NormalTexture.Sample(mainSampler, input.uv).xyz - 1;
+	//normal = normalize(normal);
+	//float3 bright = saturate(dot(normal, Light));
+	//return MainTexture.Sample(mainSampler, input.uv) * float4(bright, 1);
+
+
 
 	//float4 col = saturate(dot(input.normal, Light));
 	//col = col * 0.7f + 0.3f;
 	//col.a = 1.0f;
 	//return MainTexture.Sample(mainSampler, input.uv) * col;
+
+	return float4(1, 1, 1, 1);
 }

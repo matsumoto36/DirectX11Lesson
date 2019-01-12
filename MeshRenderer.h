@@ -13,9 +13,10 @@ class MeshRenderer : public Renderer {
 
 public:
 
-	Mesh*			mesh;			//描画するメッシュのデータ
 
-	MeshRenderer(Mesh* mesh) : mesh(mesh) {
+	MeshRenderer(const Mesh* mesh) {
+
+		_mesh = mesh;
 
 		cout << "MeshRenderer : Constructor" << endl;
 		
@@ -36,14 +37,15 @@ public:
 			_vertexBuffer,
 			0,
 			nullptr,
-			mesh->GetVertex().data(),
-				0, 0
-				);
+			_mesh->GetVertex().data(),
+			0, 0
+		);
 	}
 
 	virtual void OnDraw(ID3D11DeviceContext* const context) override {
 
-		context->Draw(mesh->GetVertex().size(), 0);
+		//context->Draw(_mesh->GetVertex().size(), 0);
+		context->DrawIndexed(_mesh->GetIndices().size(), 0, 0);
 
 	}
 

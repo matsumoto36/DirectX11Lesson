@@ -18,11 +18,12 @@ struct VS_OUT {
 };
 
 //座標行列データを受け取る
-cbuffer ConstantBuffer : register(b0) {
+cbuffer ConstantBuffer {
 	matrix World;		//ワールド座標行列
 	matrix View;		//ビュー座標行列
 	matrix Projection;	//プロジェクション座標行列
 }
+
 
 VS_OUT main(VS_IN input) {
 

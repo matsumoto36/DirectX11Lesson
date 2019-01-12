@@ -10,18 +10,17 @@
 class SpriteRenderer : public Renderer {
 
 	Sprite* sprite;
-	Mesh* polygon;
 
 public:
-	SpriteRenderer(Sprite* sprite) {
-		polygon = Primitive::GetPrimitiveMesh(PrimitiveType::Polygon);
+	SpriteRenderer(Sprite* sprite = nullptr) {
+		_mesh = Primitive::CreatePrimitiveMesh(PrimitiveType::Polygon);
 		Init();
 
 		SetSprite(sprite);
 	}
 
 	~SpriteRenderer() {
-		delete polygon;
+		delete _mesh;
 	}
 
 	void Init();
@@ -30,6 +29,8 @@ public:
 	void SetSprite(Sprite* sprite) {
 		this->sprite = sprite;
 		if (!sprite) return;
+			 
+		_material->SetTexture("MainTexture", *sprite->GetTexture());
 		UpdateUV();
 	}
 
@@ -39,7 +40,7 @@ public:
 			_vertexBuffer,
 			0,
 			nullptr,
-			polygon->GetVertex().data(),
+			_mesh->GetVertex().data(),
 			0, 0
 		);
 	}
@@ -47,7 +48,7 @@ public:
 	virtual void OnDraw(ID3D11DeviceContext* const context) override {
 
 		//context->Draw(polygon->GetVertex().size(), 0);
-		context->DrawIndexed(polygon->GetIndices().size(), 0, 0);
+		context->DrawIndexed(_mesh->GetIndices().size(), 0, 0);
 
 	}
 
@@ -60,13 +61,17 @@ private:
 
 		auto startu = static_cast<float>(rect.x) / size.x;
 		auto startv = static_cast<float>(rect.y) / size.y;
-		auto endu = static_cast<float>(rect.x + rect.width) / size.x;
-		auto endv = static_cast<float>(rect.y + rect.height) / size.y;
+		//auto endu = static_cast<float>(rect.x + rect.width) / size.x;
+		//auto endv = static_cast<float>(rect.y + rect.height) / size.y;
 
-		polygon->SetUV(0, startu, endv);
-		polygon->SetUV(1, startu, startv);
-		polygon->SetUV(2, endu, endv);
-		polygon->SetUV(3, endu, startv);
+		//UV操作はシェーダーでやること
+		//polygon->SetUV(0, startu, endv);
+		//polygon->SetUV(1, startu, startv);
+		//polygon->SetUV(2, endu, endv);
+		//polygon->SetUV(3, endu, startv);
+
+		_material->SetFloat2("Offset", Vector2(startu, startv));
+		_material->SetFloat2("Count", Vector2(rect.width / size.x, rect.height / size.y));
 	}
 
 };

@@ -1,33 +1,36 @@
 #pragma once
 
+#include <DirectXMath.h>
 #include <vector>
 
 using namespace std;
-
+using namespace DirectX;
 //頂点のデータ
 struct Vertex {
-	float pos[3];
-	float col[4];
-	float uv[2];
+	XMFLOAT4 pos;
+	XMFLOAT4 col;
+	XMFLOAT3 normal;
+	XMFLOAT2 uv;
 };
 
 class Mesh;
 
 enum class PrimitiveType {
 	Polygon,
+	Box,
 	Star,
 };
 
 class Primitive {
 
 	const static vector<Mesh*> meshData;
-	const static vector<Vertex> polygon;
-	const static vector<Vertex> star;
+	//const static vector<Vertex> polygon;
+	//const static vector<Vertex> star;
 
 public:
 	Primitive();
 	~Primitive();
 
-	static Mesh* GetPrimitiveMesh(PrimitiveType type);
+	static const Mesh* CreatePrimitiveMesh(PrimitiveType type);
 };
 

@@ -19,20 +19,20 @@ bool ShaderVariable::Initialize(ID3D11Device &device, ID3D11ShaderReflection &re
 	}
 
 	//シェーダーリソースの読み取り
-	//for (size_t i = 0; i < shaderDesc.BoundResources; i++) {
+	for (size_t i = 0; i < shaderDesc.BoundResources; i++) {
 
-	//	D3D11_SHADER_INPUT_BIND_DESC desc;
-	//	reflection.GetResourceBindingDesc(i, &desc);
+		D3D11_SHADER_INPUT_BIND_DESC desc;
+		reflection.GetResourceBindingDesc(i, &desc);
 
-	//	switch (desc.Type) {
-	//		case D3D_SIT_TEXTURE:
-	//			AddShaderResourceSlot(desc);
-	//			break;
-	//		case D3D_SIT_SAMPLER:
-	//			AddSamplerSlot(desc);
-	//			break;
-	//	}
-	//}
+		switch (desc.Type) {
+			case D3D_SIT_TEXTURE:
+				AddShaderResourceSlot(desc);
+				break;
+			case D3D_SIT_SAMPLER:
+				AddSamplerSlot(desc);
+				break;
+		}
+	}
 
 	return true;
 }

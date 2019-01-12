@@ -5,8 +5,9 @@
 struct VS_IN {
 
 	//D3D11_INPUT_ELEMENT_DESCで定義したセマンティクス名・インデックス番号
-	float3 pos : POSITION0;
+	float4 pos : POSITION0;
 	float4 col : COLOR0;
+	float3 normal : NORMAL0;
 	float2 uv  : TEXCOORD0;
 };
 
@@ -15,14 +16,8 @@ struct VS_OUT {
 	//すでに頂点シェーダーで処理されているので、システム上で使う値としてSV_POSITIONを渡す
 	float4 pos : SV_POSITION;
 	float2 uv  : TEXCOORD0;
+	float3 normal : NORMAL0;
 };
-
-cbuffer cb {
-	float3 f1;
-	float3 f2;
-	float3 f3;
-	float3 f4;
-}
 
 //座標行列データを受け取る
 cbuffer ConstantBuffer {
@@ -42,7 +37,10 @@ VS_OUT main(VS_IN input) {
 	output.pos = mul(output.pos, View);
 	//上記の値とプロジェクション座標行列で行列の乗算を行う
 	output.pos = mul(output.pos, Projection);
-	output.uv = input.uv;
+	
+	float3 n = mul(input.normal, World).xyz;
+	output.normal = normalize(n);
 
+	output.uv = input.uv;
 	return output;
 }

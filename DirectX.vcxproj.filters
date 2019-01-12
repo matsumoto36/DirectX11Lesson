@@ -49,6 +49,21 @@
     <Filter Include="ヘッダー ファイル\Vector3">
       <UniqueIdentifier>{51ec9b81-d982-4366-ad3c-8e9dc90fc646}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\Model">
+      <UniqueIdentifier>{13a94dc0-8c5a-4d9e-a599-f4046c21da39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\Sprite">
+      <UniqueIdentifier>{c7c83f51-b3a8-460c-893a-a9f6cdc734fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\MagicCircle">
+      <UniqueIdentifier>{2e387286-85c6-4fd1-8842-538ca16be719}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\FBXDefault">
+      <UniqueIdentifier>{e470d38e-febd-4662-a121-fc4faf38cbc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Shader\ToonShader">
+      <UniqueIdentifier>{233e162b-1ada-4fb9-9744-7193c19a441f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -108,6 +123,15 @@
     <ClCompile Include="Vector2.cpp">
       <Filter>ソース ファイル\Vector</Filter>
     </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="FBXLoader.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\Texture\PixelShader.hlsl">
@@ -133,6 +157,30 @@
     </FxCompile>
     <FxCompile Include="Shader\MultiTexture\VertexShader.hlsl">
       <Filter>リソース ファイル\Shader\MultiTexture</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\Sprite\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\Sprite\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\MagicCircle\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\MagicCircle</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\MagicCircle\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\MagicCircle</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\FBXDefault\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\FBXDefault</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\FBXDefault\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\FBXDefault</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ToonShader\PixelShader.hlsl">
+      <Filter>リソース ファイル\Shader\ToonShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ToonShader\VertexShader.hlsl">
+      <Filter>リソース ファイル\Shader\ToonShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +244,15 @@
     <ClInclude Include="Vector3.h">
       <Filter>ヘッダー ファイル\Vector3</Filter>
     </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="FBXLoader.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Texture\Image1.jpg">
@@ -210,6 +267,24 @@
     <Image Include="Resources\Texture\tex.jpg">
       <Filter>リソース ファイル\Resources\Texture</Filter>
     </Image>
+    <Image Include="Resources\Texture\maho.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="Resources\Texture\mask.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="Resources\Texture\minecraft.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="Resources\Texture\renga.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="Resources\Texture\nojya.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="Resources\Texture\renga_n.png">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -223,5 +298,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\Model\Test.FBX">
+      <Filter>リソース ファイル\Model</Filter>
+    </None>
+    <None Include="Resources\Model\Test2.FBX">
+      <Filter>リソース ファイル\Model</Filter>
+    </None>
+    <None Include="Resources\Model\nojya.FBX" />
   </ItemGroup>
 </Project>

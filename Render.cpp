@@ -3,10 +3,7 @@
 //描画するモデルのリスト
 vector<reference_wrapper<Renderer>> Render::rendererList;
 
-//ID3D11Buffer*			Render::g_pConstantBuffer;
-
-XMMATRIX Render::g_View;
-XMMATRIX Render::g_Proj;
+Camera* Render::_camera = nullptr;
 
 int Render::windowSizeX = 1280;
 int Render::windowSizeY = 720;
@@ -306,45 +303,10 @@ HRESULT Render::InitDevice() {
 		rendererList
 	);
 
-	//座標変換行列についての記述
-	D3D11_BUFFER_DESC descCBuffer;
-	ZeroMemory(&descCBuffer, sizeof(descCBuffer));
-	descCBuffer.Usage = D3D11_USAGE_DEFAULT;			//バッファで想定されている読み込み及び書き込みの方法を識別
-	descCBuffer.ByteWidth = sizeof(ConstantBuffer);		//バッファのサイズ
-	descCBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;	//バッファをどのようにグラフィックスパイプラインにバインドするかを識別
-	descCBuffer.CPUAccessFlags = 0;						//CPUアクセスのフラグ
-
-	//バッファの作成
-	//hr = g_pd3dDevice->CreateBuffer(
-	//	&descCBuffer,			//バッファの記述へのポインタ
-	//	nullptr,				//初期化データへのポインタ
-	//	&g_pConstantBuffer		//作成されるバッファへのポインタのアドレス
-	//);
-
 	if (FAILED(hr)) return E_FAIL;
 
-	//単位行列の作成
-	//g_World = XMMatrixIdentity();
-	//カメラの位置
-	XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -4.0f, 0.0f);
-	//カメラの焦点
-	XMVECTOR focus = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	//現在のワールド座標における上方向の定義
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	//カメラの位置、上方向、および焦点を利用して
-	//左手座標系のビュー行列を作成
-	g_View = XMMatrixLookAtLH(eye, focus, up);
-	//カメラの視野角を設定
-	float fov = XMConvertToRadians(45.0f);
-	//アスペクト比の設定
-	float aspect = g_ViewPort.Width / g_ViewPort.Height;
-	//ニア(見える範囲の前方)を設定
-	float nearZ = 0.1f;
-	//ファー(見える範囲の広報)を設定
-	float farZ = 100.0f;
-	//視野に基づいて、左手座標系のパースペクティブ射影行列を作成
-	g_Proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
+	//カメラの生成
+	_camera = new Camera({ 0, 0, -2 }, g_ViewPort.Width / g_ViewPort.Height);
 
 	//サンプラーステートの作成
 	D3D11_SAMPLER_DESC descSampler;
@@ -398,30 +360,17 @@ void Render::Rendering() {
 		//サブリソースの更新
 		renderer->OnUpdateSubResource(g_pImmedicateContext);
 
-		//座標行列構造体の変数を定義
-		ConstantBuffer cb;
-
 		//行列を転置
-		cb.world = XMMatrixTranspose(renderer->GetTransform());
-		cb.view = XMMatrixTranspose(g_View);
-		cb.projection = XMMatrixTranspose(g_Proj);
-
-		//データをコピーしてg_pConstantBufferの内容を書き換える
-		//g_pImmedicateContext->UpdateSubresource(
-		//	g_pConstantBuffer,	//コピー先リソースへのポインタ
-		//	0,					//コピー先のサブリソースを特定するためのインデックス
-		//	nullptr,			//リソースデータのコピー先となるサブリソースの部分を定義
-		//	&cb,				//コピー元データへのポインタ
-		//	0,					//コピー元データの一行のアドレス
-		//	0					//コピー元データの1深度スライスのサイズ
-		//);
+		auto world = XMMatrixTranspose(renderer->GetTransform());	//ワールド変換行列
+		auto view = XMMatrixTranspose(_camera->GetView());						//ビュー変換行列
+		auto projection = XMMatrixTranspose(_camera->GetProj());				//プロジェクション変換行列
 
 		if (auto material = renderer->GetMaterial()) {
 
 			//行列データを転送
-			material->SetMatrix("World", cb.world);
-			material->SetMatrix("View", cb.view);
-			material->SetMatrix("Projection", cb.projection);
+			material->SetMatrix("World", world);
+			material->SetMatrix("View", view);
+			material->SetMatrix("Projection", projection);
 
 			//シェーダーを設定
 			material->SetShader(*g_pImmedicateContext);
@@ -431,21 +380,13 @@ void Render::Rendering() {
 			material->SetConstantBuffer(*g_pImmedicateContext);
 		}
 
-		//頂点シェーダーで使用される定数バッファを設定
-		//g_pImmedicateContext->VSSetConstantBuffers(
-		//	0,					//デバイスの配列の中で定数バッファの設定を開始する位置
-		//	1,					//設定するバッファの数
-		//	&g_pConstantBuffer	//デバイスに設定する定数バッファの配列
-		//);
-
 		//テクスチャ系
 		if (auto material = renderer->GetMaterial()) {
-			//material->UpdateShaderResourceView(*g_pImmedicateContext);
-			//material->UpdateSampler(*g_pImmedicateContext);
+			material->UpdateShaderResourceView(*g_pImmedicateContext);
+			material->UpdateSampler(*g_pImmedicateContext);
 
 			//入力アセンブラーステージに入力レイアウトオブジェクトをバインド
 			material->SetInputLayout(*g_pImmedicateContext);
-			//g_pImmedicateContext->IASetInputLayout(Shader::pVertexLayout);
 		}
 
 		//入力アセンブラーステージに頂点バッファーの配列をバインド
@@ -458,16 +399,15 @@ void Render::Rendering() {
 		);
 
 		//インデックスバッファを設定
-		g_pImmedicateContext->IASetIndexBuffer(
-			renderer->GetIndexBuffer(),
-			DXGI_FORMAT_R32_UINT,
-			0
-		);
+		if(auto indexBuffer = renderer->GetIndexBuffer())
+			g_pImmedicateContext->IASetIndexBuffer(
+				indexBuffer,
+				DXGI_FORMAT_R32_UINT,
+				0
+			);
 
 		//プリミティブ タイプおよびデータの順序に関する情報をバインド 
-		//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST		頂点データを三角形のリストとして解釈(2つの三角形で6個の頂点)
-		//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP	頂点データを三角形のストリップとして解釈(2つの三角形で4個の頂点
-		g_pImmedicateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		renderer->SetPrimitiveTopology(g_pImmedicateContext);
 
 		//描画
 		renderer->OnDraw(g_pImmedicateContext);
@@ -489,6 +429,8 @@ void Render::CleanupDevice() {
 	//リソースの開放
 	Shader::Finalize();
 
+	if (_camera) delete _camera;
+
 	if (g_pDepthStencilView) g_pDepthStencilView->Release();
 	if (g_pDepthStencil) g_pDepthStencil->Release();
 	if (g_pRenderTargetView) g_pRenderTargetView->Release();
@@ -498,5 +440,4 @@ void Render::CleanupDevice() {
 
 	if (g_pBlendState) g_pBlendState->Release();
 	if (g_pRasterizerState) g_pRasterizerState->Release();
-	//if (g_pConstantBuffer) g_pConstantBuffer->Release();
 }

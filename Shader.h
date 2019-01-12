@@ -32,10 +32,6 @@ public:
 
 private:
 
-	static vector<vector<D3D11_INPUT_ELEMENT_DESC>> _inputLayoutDescList;
-
-	static D3D11_INPUT_ELEMENT_DESC vertexDesc[];		//ここに定義した内容が頂点シェーダーに送られる
-
 	static vector<GeneratedShader*> loadedShaderList;		//読み込まれているシェーダーのリスト
 
 private:

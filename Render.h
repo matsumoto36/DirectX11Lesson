@@ -7,6 +7,7 @@
 #include <DirectXColors.h>			//DirectX::Colorsを利用するために必要
 #include <d3dcompiler.h>
 
+#include "Camera.h"
 #include "Shader.h"
 #include "MeshRenderer.h"
 #include "ControlObject.h"
@@ -18,13 +19,6 @@
 using namespace std;
 using namespace DirectX;
 
-//座標行列構造体
-struct ConstantBuffer {
-	XMMATRIX world;			//ワールド変換行列
-	XMMATRIX view;			//ビュー変換行列
-	XMMATRIX projection;	//プロジェクション変換行列
-};
-
 //
 // レンダラに従って描画を行うクラス
 //
@@ -33,11 +27,7 @@ class Render final {
 	//描画するレンダラのリスト
 	static vector<reference_wrapper<Renderer>> rendererList;
 
-	//座標系データを保存
-	//static ID3D11Buffer* g_pConstantBuffer;
-
-	static XMMATRIX g_View;		//ビュー変換行列
-	static XMMATRIX g_Proj;		//プロジェクション変換行列
+	static Camera*					_camera;
 
 	//ウィンドウサイズ
 	static int windowSizeX;
@@ -73,6 +63,7 @@ public:
 	
 	static HRESULT Init(HINSTANCE hInstance, int nCmdShow, const string& windowName);
 	static void CleanupDevice();					//デバイスとスワップチェインの開放
+	static Camera& GetCamera() { return *_camera; }
 	static void Rendering();						//描画を行う
 
 private:

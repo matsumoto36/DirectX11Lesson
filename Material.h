@@ -4,6 +4,7 @@
 
 #include "Vector2.h"
 #include "Vector3.h"
+#include "Color.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -55,6 +56,7 @@ public:
 		deviceContext.PSSetShader(_generatedShader->GetPixelShader(), NULL, 0);
 
 		return true;
+
 	}
 
 	// 入力アセンブラーステージに入力レイアウトオブジェクトをバインドする
@@ -80,6 +82,9 @@ public:
 
 	const Vector3 GetFloat3(const string &) const;
 	bool SetFloat3(const string &, const Vector3) const;
+
+	const Color GetColor(const string &) const;
+	bool SetColor(const string &, const Color) const;
 
 	const XMMATRIX GetMatrix(const string &) const;
 	bool SetMatrix(const string &, const XMMATRIX) const;

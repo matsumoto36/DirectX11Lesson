@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "Mesh.h"
 #include "Shader.h"
 #include "Material.h"
 
@@ -31,6 +32,8 @@ protected:
 	Material*						_material;		//マテリアルのデータ
 	XMFLOAT4X4						_transform;		//描画の座標データ XMMATRIXはx86系でアラインが8になるらしい
 
+	const Mesh*						_mesh;			//描画するメッシュのデータ
+
 public:
 
 	bool								IsRender;		//描画するか
@@ -41,9 +44,6 @@ protected:
 		_vertexBuffer = nullptr;
 		_indicesBuffer = nullptr;
 		SetTransform(XMMatrixIdentity());
-
-		//とりあえず
-		//_material = new class Material(L"Unlit");
 
 		_rendererList->push_back(*this);
 	}
@@ -67,6 +67,7 @@ public:
 
 		//バッファーリソースの開放
 		if (_vertexBuffer) _vertexBuffer->Release();
+		if (_indicesBuffer) _indicesBuffer->Release();
 	}
 
 	// getter
@@ -94,7 +95,15 @@ public:
 	}
 
 	void SetMaterial(Material* const material) {
+		if (_material) delete _material;
 		_material = material;
+	}
+
+	// プリミティブ タイプおよびデータの順序に関する情報をバインドする
+	void SetPrimitiveTopology(ID3D11DeviceContext* const context) {
+		//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST		頂点データを三角形のリストとして解釈(2つの三角形で6個の頂点)
+		//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP	頂点データを三角形のストリップとして解釈(2つの三角形で4個の頂点
+		context->IASetPrimitiveTopology(_mesh->GetPrimitiveTopology());
 	}
 
 	// サブリソースの更新時に呼ばれる

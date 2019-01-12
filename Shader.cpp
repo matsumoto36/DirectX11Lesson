@@ -1,13 +1,5 @@
 #include "Shader.h"
 
-vector<vector<D3D11_INPUT_ELEMENT_DESC>> Shader::_inputLayoutDescList;
-
-D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[] {
-	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-	{ "COLOR",		0,	DXGI_FORMAT_R32G32B32A32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-	{ "TEXCOORD",	0,	DXGI_FORMAT_R32G32_FLOAT,		0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-};
-
 vector<GeneratedShader*> Shader::loadedShaderList;
 
 HRESULT Shader::Initialize(ID3D11Device &device) {
@@ -108,7 +100,7 @@ HRESULT Shader::CreateVertexShader(ID3D11Device &device, const wchar_t* vs, ID3D
 	hr = Shader::CompileShaderFromFile(
 		(wchar_t*)vs,
 		"main",
-		"vs_4_0",
+		"vs_5_0",
 		&pVSBlob
 	);
 
@@ -150,39 +142,12 @@ HRESULT Shader::CreateVertexShader(ID3D11Device &device, const wchar_t* vs, ID3D
 		inputLayoutDescList.push_back(desc);
 	}
 
-	_inputLayoutDescList.push_back(inputLayoutDescList);
-	/*
-	D3D11_INPUT_ELEMENT_DESC Shader::vertexDesc[]{
-	{ "POSITION",	0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-	{ "COLOR",		0,	DXGI_FORMAT_R32G32B32A32_FLOAT,	0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-	{ "TEXCOORD",	0,	DXGI_FORMAT_R32G32_FLOAT,		0,	D3D11_APPEND_ALIGNED_ELEMENT,	D3D11_INPUT_PER_VERTEX_DATA,	0 },
-};
-*/
-	//inputLayoutDescList.data();
-
-	//hr = device.CreateInputLayout(
-	//	&inputLayoutDescList[0],			//入力アセンブラーステージの入力データ型の配列
-	//	inputLayoutDescList.size(),			//入力要素の配列内の入力データ型の数
-	//	pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
-	//	pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
-	//	&inputLayout				//作成される入力レイアウト オブジェクトへのポインタ
-	//);
-
-	//hr = device.CreateInputLayout(
-	//	&_inputLayoutDescList[_inputLayoutDescList.size() - 1][0],			//入力アセンブラーステージの入力データ型の配列
-	//	inputLayoutDescList.size(),			//入力要素の配列内の入力データ型の数
-	//	pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
-	//	pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
-	//	&inputLayout					//作成される入力レイアウト オブジェクトへのポインタ
-	//);
-
-	//このコードは動作する
 	hr = device.CreateInputLayout(
-		vertexDesc,					
-		ARRAYSIZE(vertexDesc),		
-		pVSBlob->GetBufferPointer(),
-		pVSBlob->GetBufferSize(),	
-		&inputLayout				
+		&inputLayoutDescList[0],			//入力アセンブラーステージの入力データ型の配列
+		inputLayoutDescList.size(),			//入力要素の配列内の入力データ型の数
+		pVSBlob->GetBufferPointer(),	//コンパイル済みシェーダーへのポインタ
+		pVSBlob->GetBufferSize(),		//コンパイル済み頂点シェーダーのサイズ
+		&inputLayout				//作成される入力レイアウト オブジェクトへのポインタ
 	);
 
 	pVSBlob->Release();
@@ -200,7 +165,7 @@ HRESULT Shader::CreatePixelShader(ID3D11Device &device, const wchar_t* ps, ID3D1
 	hr = Shader::CompileShaderFromFile(
 		(wchar_t*)ps,
 		"main",
-		"ps_4_0",
+		"ps_5_0",
 		&pPSBlob
 	);
 
