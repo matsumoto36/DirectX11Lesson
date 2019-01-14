@@ -6,7 +6,7 @@ FBXLoader::FBXLoader() :
 	_manager(FbxManager::Create()),
 	_scene(FbxScene::Create(_manager, "")) {
 	
-	FbxString fileName = "Resources/Model/nojya.FBX";
+	FbxString fileName = "Resources/Model/Test2.FBX";
 
 	auto importer = FbxImporter::Create(_manager, "");
 
@@ -38,63 +38,60 @@ FBXLoader::FBXLoader() :
 	auto indices = vector<int>();
 
 	for (auto mesh : _meshes) {
-		int polygonCount = mesh->GetPolygonCount();
 
-		vector<int> indexList;
+		auto polygonCount = mesh->GetPolygonCount();
 
-		//インデックスデータの設定
-		auto vertexOffset = vertices.size();
+		//ポリゴンごと
 		for (auto i = 0; i < polygonCount; ++i) {
-			indexList.push_back(vertexOffset + mesh->GetPolygonVertex(i, 0));
-			indexList.push_back(vertexOffset + mesh->GetPolygonVertex(i, 1));
-			indexList.push_back(vertexOffset + mesh->GetPolygonVertex(i, 2));
+			for (auto j = 0; j < 3; j++) {
+
+				//インデックスデータ
+				auto index = mesh->GetPolygonVertex(i, j);
+				indices.push_back(index);
+
+				Vertex v;
+
+				//座標
+				auto pos = mesh->GetControlPointAt(index);
+				v.pos.x = pos[0];
+				v.pos.y = pos[1];
+				v.pos.z = pos[2];
+				v.pos.w = 1.0f;
+
+				//頂点カラー
+				v.col = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+				//法線
+				FbxVector4 normal;
+				mesh->GetPolygonVertexNormal(i, j, normal);
+				v.normal.x = normal[0];
+				v.normal.y = normal[1];
+				v.normal.z = normal[2];
+
+				vertices.push_back(v);
+			}
 		}
-		//indicesの後ろに追加
-		copy(indexList.begin(), indexList.end(), back_inserter(indices));
+
 
 		//UVを取得
 		//頂点に格納されている全UVセットを名前で取得
 		FbxStringList uvsetName;
 		mesh->GetUVSetNames(uvsetName);
+		auto name = uvsetName.GetStringAt(0);
 
-		//uvsetsに、頂点ごとのUVを格納してくれる
-		FbxArray<FbxVector2> uvsets;
-		mesh->GetPolygonVertexUVs(uvsetName.GetStringAt(0), uvsets);
+		auto count = 0;
+		for (auto i = 0; i < polygonCount; ++i) {
+			for (auto j = 0; j < 3; j++) {
 
-		//法線を取得
-		FbxArray<FbxVector4> normals;
-		mesh->GetPolygonVertexNormals(normals);
+				FbxVector2 texCoord;
+				bool unmapped;
+				mesh->GetPolygonVertexUV(i, j, name, texCoord, unmapped);
 
-		//頂点データの設定
-		int vertexCount = mesh->GetControlPointsCount();
-		for (auto i = 0; i < vertexCount; ++i) {
-			
-			//座標
-			auto cp = mesh->GetControlPointAt(i);
-
-			Vertex v;
-			v.pos.x = cp[0];
-			v.pos.y = cp[1];
-			v.pos.z = cp[2];
-			v.pos.w = 1.0f;
-
-			//頂点カラー
-			v.col = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-			//UV
-			auto uv = uvsets.GetAt(i);
-			v.uv.x = uv[0];
-			v.uv.y = 1.0 - uv[1];
-
-			//法線
-			auto normal = normals.GetAt(i);
-			v.normal.x = normal[0];
-			v.normal.y = normal[1];
-			v.normal.z = normal[2];
-
-			vertices.push_back(v);
-
+				vertices[count].uv.x = texCoord[0];
+				vertices[count].uv.y = texCoord[1];
+			}
 		}
+
 	}
 
 	//メッシュを作成
